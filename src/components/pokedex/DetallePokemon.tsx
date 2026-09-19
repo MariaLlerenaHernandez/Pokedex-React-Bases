@@ -3,9 +3,11 @@ import type { PokemonDetail } from '../../types/pokemon';
 interface Props {
   pokemon: PokemonDetail | null;
   cargando: boolean;
+  esFavorito: boolean;
+  onToggleFavorito: () => void;
 }
 
-export default function DetallePokemon({ pokemon, cargando }: Props) {
+export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggleFavorito }: Props) {
   if (cargando) {
     return (
       <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-center min-h-[420px]">
@@ -27,9 +29,18 @@ export default function DetallePokemon({ pokemon, cargando }: Props) {
       <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-5">
         <div className="flex items-center justify-between text-blue-100 text-sm font-medium">
           <span>#{String(pokemon.id).padStart(3, '0')}</span>
-          <span className="bg-white/15 border border-white/25 rounded-full px-3 py-1 text-xs">
-            {pokemon.baseExperience} XP
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="bg-white/15 border border-white/25 rounded-full px-3 py-1 text-xs">
+              {pokemon.baseExperience} XP
+            </span>
+            <button
+              onClick={onToggleFavorito}
+              aria-label={esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+              className="bg-white/15 border border-white/25 rounded-full px-3 py-1 text-xs text-white hover:bg-white/25 transition-colors cursor-pointer"
+            >
+              {esFavorito ? '★ En favoritos' : '☆ Agregar a favoritos'}
+            </button>
+          </div>
         </div>
         <h2 className="text-2xl font-bold text-white mt-1">{pokemon.name}</h2>
         <div className="flex gap-2 mt-3">
