@@ -158,7 +158,7 @@ export default function Pokedex({ onRegresar }: Props) {
           onClick={() => setSoloFavoritos(false)}
           className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
             !soloFavoritos
-              ? "bg-blue-600 text-white"
+              ? "bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-[0_0_12px_rgba(255,74,28,0.45)]"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -168,14 +168,16 @@ export default function Pokedex({ onRegresar }: Props) {
           onClick={() => setSoloFavoritos(true)}
           className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
             soloFavoritos
-              ? "bg-blue-600 text-white"
+              ? "bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-[0_0_12px_rgba(255,74,28,0.45)]"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           Favoritos
           <span
             className={`text-xs rounded-full px-2 py-0.5 ${
-              soloFavoritos ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"
+              soloFavoritos
+                ? "bg-white/25 text-white"
+                : "bg-slate-100 text-slate-600"
             }`}
           >
             {favoritos.length}
@@ -197,8 +199,12 @@ export default function Pokedex({ onRegresar }: Props) {
         <DetallePokemon
           pokemon={seleccionado}
           cargando={false}
-          esFavorito={seleccionado ? favoritos.includes(seleccionado.id) : false}
-          onToggleFavorito={() => seleccionado && alternarFavorito(seleccionado.id)}
+          esFavorito={
+            seleccionado ? favoritos.includes(seleccionado.id) : false
+          }
+          onToggleFavorito={() =>
+            seleccionado && alternarFavorito(seleccionado.id)
+          }
         />
       </div>
     </div>
