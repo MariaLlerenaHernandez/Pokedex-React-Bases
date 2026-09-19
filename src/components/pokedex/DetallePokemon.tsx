@@ -1,4 +1,4 @@
-import type { PokemonDetail } from '../../types/pokemon';
+import type { PokemonDetail } from "../../types/pokemon";
 
 interface Props {
   pokemon: PokemonDetail | null;
@@ -7,7 +7,12 @@ interface Props {
   onToggleFavorito: () => void;
 }
 
-export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggleFavorito }: Props) {
+export default function DetallePokemon({
+  pokemon,
+  cargando,
+  esFavorito,
+  onToggleFavorito,
+}: Props) {
   if (cargando) {
     return (
       <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-center min-h-[420px]">
@@ -19,26 +24,30 @@ export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggle
   if (!pokemon) {
     return (
       <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-center min-h-[420px]">
-        <p className="text-slate-400 text-sm">Selecciona un Pokémon de la lista</p>
+        <p className="text-slate-400 text-sm">
+          Selecciona un Pokémon de la lista
+        </p>
       </div>
     );
   }
 
   return (
     <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-5">
+      <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 px-6 py-5">
         <div className="flex items-center justify-between text-blue-100 text-sm font-medium">
-          <span>#{String(pokemon.id).padStart(3, '0')}</span>
+          <span>#{String(pokemon.id).padStart(3, "0")}</span>
           <div className="flex items-center gap-2">
             <span className="bg-white/15 border border-white/25 rounded-full px-3 py-1 text-xs">
               {pokemon.baseExperience} XP
             </span>
             <button
               onClick={onToggleFavorito}
-              aria-label={esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+              aria-label={
+                esFavorito ? "Quitar de favoritos" : "Agregar a favoritos"
+              }
               className="bg-white/15 border border-white/25 rounded-full px-3 py-1 text-xs text-white hover:bg-white/25 transition-colors cursor-pointer"
             >
-              {esFavorito ? '★ En favoritos' : '☆ Agregar a favoritos'}
+              {esFavorito ? "★ En favoritos" : "☆ Agregar a favoritos"}
             </button>
           </div>
         </div>
@@ -59,7 +68,11 @@ export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggle
         <div className="flex justify-center">
           <div className="w-40 h-40 rounded-full bg-slate-100 flex items-center justify-center">
             {pokemon.image ? (
-              <img src={pokemon.image} alt={pokemon.name} className="w-32 h-32 object-contain" />
+              <img
+                src={pokemon.image}
+                alt={pokemon.name}
+                className="w-32 h-32 object-contain"
+              />
             ) : (
               <span className="text-slate-400 text-xs">Sin imagen</span>
             )}
@@ -97,7 +110,7 @@ export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggle
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-600 rounded-full"
+                    className="h-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 shadow-[0_0_8px_rgba(255,74,28,0.6)] rounded-full"
                     style={{ width: `${Math.min(100, stat.value)}%` }}
                   />
                 </div>
@@ -113,7 +126,9 @@ export default function DetallePokemon({ pokemon, cargando, esFavorito, onToggle
 function InfoBox({ label, valor }: { label: string; valor: string | number }) {
   return (
     <div className="border border-slate-200 rounded-lg py-3 text-center">
-      <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">
+        {label}
+      </p>
       <p className="text-slate-800 font-semibold mt-1">{valor}</p>
     </div>
   );
