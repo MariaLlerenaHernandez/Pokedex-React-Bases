@@ -1,4 +1,4 @@
-import type { PokemonDetail } from '../../types/pokemon';
+import type { PokemonDetail } from "../../types/pokemon";
 
 interface Props {
   pokemones: PokemonDetail[];
@@ -32,22 +32,29 @@ export default function ListaPokemon({
 
       <div className="overflow-y-auto max-h-[65vh] pr-1 flex flex-col gap-1">
         {cargando && (
-          <p className="text-sm text-slate-400 py-4 text-center">Cargando los 151 Pokémon...</p>
+          <p className="text-sm text-slate-400 py-4 text-center">
+            Cargando los 151 Pokémon...
+          </p>
         )}
 
         {!cargando && pokemones.length === 0 && (
-          <p className="text-sm text-slate-400 py-4 text-center">Sin resultados</p>
+          <p className="text-sm text-slate-400 py-4 text-center">
+            Sin resultados
+          </p>
         )}
 
         {pokemones.map((pokemon) => {
           const activo = pokemon.id === seleccionado;
           const esFavorito = favoritos.includes(pokemon.id);
-          const valor = pokemon.stats.find((s) => s.name === estadistica)?.value ?? 0;
+          const valor =
+            pokemon.stats.find((s) => s.name === estadistica)?.value ?? 0;
           return (
             <div
               key={pokemon.id}
               className={`flex items-center rounded-lg transition-colors ${
-                activo ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+                activo
+                  ? "bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-[0_0_14px_rgba(255,74,28,0.5)]"
+                  : "text-slate-700 hover:bg-slate-100"
               }`}
             >
               <button
@@ -57,7 +64,9 @@ export default function ListaPokemon({
                 <span className="truncate">{pokemon.name}</span>
                 <span
                   className={`text-xs font-semibold rounded-full px-2 py-0.5 ${
-                    activo ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                    activo
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-100 text-slate-500"
                   }`}
                 >
                   {valor}
@@ -66,16 +75,18 @@ export default function ListaPokemon({
 
               <button
                 onClick={() => onToggleFavorito(pokemon.id)}
-                aria-label={esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                aria-label={
+                  esFavorito ? "Quitar de favoritos" : "Agregar a favoritos"
+                }
                 className={`px-2 text-lg leading-none cursor-pointer ${
                   esFavorito
-                    ? 'text-amber-400'
+                    ? "text-amber-400"
                     : activo
-                      ? 'text-blue-100'
-                      : 'text-slate-400 hover:text-amber-400'
+                      ? "text-blue-100"
+                      : "text-slate-400 hover:text-amber-400"
                 }`}
               >
-                {esFavorito ? '★' : '☆'}
+                {esFavorito ? "★" : "☆"}
               </button>
             </div>
           );
