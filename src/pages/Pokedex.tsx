@@ -1,59 +1,125 @@
-import { useEffect, useMemo, useState } from 'react';
-import ListaPokemon from '../components/pokedex/ListaPokemon';
-import DetallePokemon from '../components/pokedex/DetallePokemon';
-import { obtenerDetallePokemon, obtenerListaPokemon } from '../lib/pokeapi';
-import type { PokemonDetail, PokemonListItem } from '../types/pokemon';
+import { useEffect, useMemo, useState } from "react";
+import ListaPokemon from "../components/pokedex/ListaPokemon";
+import DetallePokemon from "../components/pokedex/DetallePokemon";
+import FiltroEstadistica from "../components/pokedex/FiltroEstadistica";
+import FiltroTipo from "../components/pokedex/FiltroTipo";
+import { obtenerDetallePokemon, obtenerListaPokemon } from "../lib/pokeapi";
+import type { PokemonDetail } from "../types/pokemon";
 
 interface Props {
   onRegresar: () => void;
 }
 
-export default function Pokedex({ onRegresar }: Props) {
-  const [pokemones, setPokemones] = useState<PokemonListItem[]>([]);
-  const [cargandoLista, setCargandoLista] = useState(true);
-  const [busqueda, setBusqueda] = useState('');
+const CLAVE_FAVORITOS = "pokedex-favoritos";
 
-  const [seleccionado, setSeleccionado] = useState<PokemonListItem | null>(null);
-  const [detalle, setDetalle] = useState<PokemonDetail | null>(null);
-  const [cargandoDetalle, setCargandoDetalle] = useState(false);
-  const [cache, setCache] = useState<Record<string, PokemonDetail>>({});
+export default function Pokedex({ onRegresar }: Props) {
+  const [detalles, setDetalles] = useState<PokemonDetail[]>([]);
+  const [cargandoLista, setCargandoLista] = useState(true);
+  const [busqueda, setBusqueda] = useState("");
+
+  const [estadistica, setEstadistica] = useState("Speed");
+  const [comparador, setComparador] = useState<"gte" | "lte">("gte");
+  const [umbral, setUmbral] = useState("");
+  const [tiposSeleccionados, setTiposSeleccionados] = useState<string[]>([]);
+
+  const [favoritos, setFavoritos] = useState<number[]>(() => {
+    try {
+      const guardado = localStorage.getItem(CLAVE_FAVORITOS);
+      return guardado ? JSON.parse(guardado) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [soloFavoritos, setSoloFavoritos] = useState(false);
+
+  const [seleccionado, setSeleccionado] = useState<PokemonDetail | null>(null);
 
   useEffect(() => {
     obtenerListaPokemon(151)
-      .then((datos) => {
-        setPokemones(datos);
-        if (datos.length > 0) setSeleccionado(datos[0]);
+      .then((lista) =>
+        Promise.all(lista.map((p) => obtenerDetallePokemon(p.url))),
+      )
+      .then((detallesCompletos) => {
+        setDetalles(detallesCompletos);
+        if (detallesCompletos.length > 0) setSeleccionado(detallesCompletos[0]);
       })
-      .catch((error) => console.error('Error al obtener la lista de Pokémon', error))
+      .catch((error) => console.error("Error al obtener los Pokémon", error))
       .finally(() => setCargandoLista(false));
   }, []);
 
   useEffect(() => {
-    if (!seleccionado) return;
-
-    if (cache[seleccionado.name]) {
-      setDetalle(cache[seleccionado.name]);
-      return;
+    try {
+      localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
+    } catch {
+      // sin espacio o bloqueado: los favoritos solo duran la sesión
     }
+  }, [favoritos]);
 
-    setCargandoDetalle(true);
-    obtenerDetallePokemon(seleccionado.url)
-      .then((datos) => {
-        setDetalle(datos);
-        setCache((previo) => ({ ...previo, [seleccionado.name]: datos }));
-      })
-      .catch((error) => console.error('Error al obtener el detalle del Pokémon', error))
-      .finally(() => setCargandoDetalle(false));
-  }, [seleccionado, cache]);
+  const tiposDisponibles = useMemo(
+    () => [...new Set(detalles.flatMap((p) => p.types))].sort(),
+    [detalles],
+  );
+
+  const alternarTipo = (tipo: string) => {
+    setTiposSeleccionados((previo) =>
+      previo.includes(tipo)
+        ? previo.filter((t) => t !== tipo)
+        : [...previo, tipo],
+    );
+  };
+
+  const alternarFavorito = (id: number) => {
+    setFavoritos((previo) =>
+      previo.includes(id) ? previo.filter((f) => f !== id) : [...previo, id],
+    );
+  };
+
+  const restablecerFiltros = () => {
+    setTiposSeleccionados([]);
+    setBusqueda("");
+    setEstadistica("Speed");
+    setComparador("gte");
+    setUmbral("");
+  };
 
   const pokemonesFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
-    if (!texto) return pokemones;
-    return pokemones.filter((p) => p.name.toLowerCase().includes(texto));
-  }, [pokemones, busqueda]);
+    const obtenerValor = (p: PokemonDetail) =>
+      p.stats.find((s) => s.name === estadistica)?.value ?? 0;
+
+    return detalles
+      .filter((p) => !soloFavoritos || favoritos.includes(p.id))
+      .filter((p) => p.name.toLowerCase().includes(texto))
+      .filter(
+        (p) =>
+          tiposSeleccionados.length === 0 ||
+          p.types.some((t) => tiposSeleccionados.includes(t)),
+      )
+      .filter((p) => {
+        if (umbral === "") return true;
+        const limite = Number(umbral);
+        return comparador === "gte"
+          ? obtenerValor(p) >= limite
+          : obtenerValor(p) <= limite;
+      })
+      .sort((a, b) =>
+        comparador === "gte"
+          ? obtenerValor(b) - obtenerValor(a)
+          : obtenerValor(a) - obtenerValor(b),
+      );
+  }, [
+    detalles,
+    busqueda,
+    estadistica,
+    comparador,
+    umbral,
+    tiposSeleccionados,
+    soloFavoritos,
+    favoritos,
+  ]);
 
   return (
-    <div className="p-6 sm:p-8 bg-slate-50 min-h-screen">
+    <div className="p-4 sm:p-8 bg-slate-50 min-h-screen">
       <button
         onClick={onRegresar}
         className="mb-4 border border-slate-200 bg-white text-slate-600 text-sm font-medium rounded-lg px-4 py-2 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -61,7 +127,7 @@ export default function Pokedex({ onRegresar }: Props) {
         ← Regresar
       </button>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <input
           type="text"
           value={busqueda}
@@ -71,15 +137,69 @@ export default function Pokedex({ onRegresar }: Props) {
         />
       </div>
 
+      <FiltroTipo
+        tipos={tiposDisponibles}
+        seleccionados={tiposSeleccionados}
+        onToggle={alternarTipo}
+        onRestablecer={restablecerFiltros}
+      />
+
+      <FiltroEstadistica
+        estadistica={estadistica}
+        comparador={comparador}
+        umbral={umbral}
+        onEstadisticaChange={setEstadistica}
+        onComparadorChange={setComparador}
+        onUmbralChange={setUmbral}
+      />
+
+      <div className="inline-flex bg-white border border-slate-200 rounded-xl p-1 mb-4">
+        <button
+          onClick={() => setSoloFavoritos(false)}
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+            !soloFavoritos
+              ? "bg-blue-600 text-white"
+              : "text-slate-600 hover:bg-slate-100"
+          }`}
+        >
+          Todos
+        </button>
+        <button
+          onClick={() => setSoloFavoritos(true)}
+          className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+            soloFavoritos
+              ? "bg-blue-600 text-white"
+              : "text-slate-600 hover:bg-slate-100"
+          }`}
+        >
+          Favoritos
+          <span
+            className={`text-xs rounded-full px-2 py-0.5 ${
+              soloFavoritos ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {favoritos.length}
+          </span>
+        </button>
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         <ListaPokemon
           pokemones={pokemonesFiltrados}
-          total={pokemones.length}
-          seleccionado={seleccionado?.name ?? null}
+          total={detalles.length}
+          estadistica={estadistica}
+          seleccionado={seleccionado?.id ?? null}
+          favoritos={favoritos}
           onSeleccionar={setSeleccionado}
+          onToggleFavorito={alternarFavorito}
           cargando={cargandoLista}
         />
-        <DetallePokemon pokemon={detalle} cargando={cargandoDetalle} />
+        <DetallePokemon
+          pokemon={seleccionado}
+          cargando={false}
+          esFavorito={seleccionado ? favoritos.includes(seleccionado.id) : false}
+          onToggleFavorito={() => seleccionado && alternarFavorito(seleccionado.id)}
+        />
       </div>
     </div>
   );
