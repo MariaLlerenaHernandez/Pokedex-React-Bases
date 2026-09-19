@@ -153,10 +153,10 @@ export default function Pokedex({ onRegresar }: Props) {
         onUmbralChange={setUmbral}
       />
 
-      <div className="inline-flex bg-white border border-slate-200 rounded-xl p-1 mb-4">
+      <div className="flex w-full sm:w-80 bg-white border border-slate-200 rounded-xl p-1 mb-4">
         <button
           onClick={() => setSoloFavoritos(false)}
-          className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex-1 text-center rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
             !soloFavoritos
               ? "bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-[0_0_12px_rgba(255,74,28,0.45)]"
               : "text-slate-600 hover:bg-slate-100"
@@ -166,7 +166,7 @@ export default function Pokedex({ onRegresar }: Props) {
         </button>
         <button
           onClick={() => setSoloFavoritos(true)}
-          className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
             soloFavoritos
               ? "bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-[0_0_12px_rgba(255,74,28,0.45)]"
               : "text-slate-600 hover:bg-slate-100"
