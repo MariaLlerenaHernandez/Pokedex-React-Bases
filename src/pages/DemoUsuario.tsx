@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import TarjetaUsuario from '../components/TarjetaUsuario';
+import { useState } from "react";
+import TarjetaUsuario from "../components/TarjetaUsuario";
 
 interface Usuario {
   name: string;
@@ -17,11 +17,13 @@ export default function DemoUsuario({ onRegresar }: Props) {
   const obtenerDatos = async () => {
     setCargando(true);
     try {
-      const respuesta = await fetch('https://jsonplaceholder.typicode.com/users/1');
+      const respuesta = await fetch(
+        "https://jsonplaceholder.typicode.com/users/1",
+      );
       const datos = await respuesta.json();
       setUsuario(datos);
     } catch (error) {
-      console.error('Error al consumir la API', error);
+      console.error("Error al consumir la API", error);
     } finally {
       setCargando(false);
     }
@@ -35,14 +37,18 @@ export default function DemoUsuario({ onRegresar }: Props) {
       >
         ← Regresar
       </button>
-      <h1 className="text-2xl font-bold mb-4 text-slate-800">Fundamentos de React</h1>
+      <h1 className="text-2xl font-bold mb-4 text-slate-800">
+        Fundamentos de React
+      </h1>
       <button
         onClick={obtenerDatos}
-        className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-all cursor-pointer"
+        className="bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white px-4 py-2 rounded shadow-[0_0_14px_rgba(255,74,28,0.5)] hover:brightness-110 transition-all cursor-pointer"
       >
-        {cargando ? 'Consultando API...' : 'Obtener Usuario'}
+        {cargando ? "Consultando API..." : "Obtener Usuario"}
       </button>
-      {usuario && <TarjetaUsuario nombre={usuario.name} correo={usuario.email} />}
+      {usuario && (
+        <TarjetaUsuario nombre={usuario.name} correo={usuario.email} />
+      )}
     </div>
   );
 }
